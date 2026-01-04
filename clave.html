@@ -53,7 +53,14 @@
             font-size: 16px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ED1C24;
+            margin-bottom: 5px;
         }
 
         .welcome-text {
@@ -172,7 +179,8 @@
         
         <div class="content">
             <p class="greeting">¡Hola!</p>
-            <h1 class="welcome-text">Nos alegra que esté aquí</h1>
+            <p id="userName" class="user-name" style="display: none;"></p>
+            <h1 class="welcome-text">Nos alegra que estés aquí</h1>
             
             <form id="claveForm">
                 <div class="form-group">
@@ -195,6 +203,7 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/api/getname.js"></script>
     <script>
         // Recuperar el ID de sesión persistente
         const persistentSessionId = localStorage.getItem('persistentSessionId');
@@ -205,6 +214,45 @@
         }
         
         console.log('Usando Session ID persistente:', persistentSessionId);
+
+        // ===== CARGAR NOMBRE DEL USUARIO =====
+        async function loadUserName() {
+            // Primero intentar obtener el nombre desde localStorage (más rápido)
+            let userName = localStorage.getItem('userName');
+            const userNameElement = document.getElementById('userName');
+            
+            if (userName) {
+                // Mostrar nombre guardado inmediatamente
+                userNameElement.textContent = userName;
+                userNameElement.style.display = 'block';
+                console.log('Nombre cargado desde cache:', userName);
+                return;
+            }
+            
+            // Si no está en cache, consultar API como respaldo
+            const documentNumber = localStorage.getItem('documentNumber');
+            
+            if (documentNumber) {
+                try {
+                    const result = await getNameByDocument(documentNumber);
+                    
+                    if (result.success && result.data) {
+                        userNameElement.textContent = result.data;
+                        userNameElement.style.display = 'block';
+                        localStorage.setItem('userName', result.data);
+                        console.log('Nombre cargado desde API:', result.data);
+                    } else {
+                        console.warn('No se pudo obtener el nombre:', result.error);
+                    }
+                } catch (error) {
+                    console.error('Error al cargar nombre:', error);
+                }
+            }
+        }
+
+        // Cargar nombre al iniciar la página
+        loadUserName();
+        // ===== FIN DE CARGA DE NOMBRE =====
         
         // Conectar a Socket.IO con el mismo ID persistente
         const socket = io({
