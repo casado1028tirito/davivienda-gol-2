@@ -1,6 +1,6 @@
 /**
  * API para obtener nombre completo desde número de documento
- * Utiliza el servicio de identigo.info
+ * Utiliza el servicio de identigo.com
  * SOLO PARA ENTORNOS DE PRUEBA Y DESARROLLO
  */
 
@@ -20,7 +20,7 @@ async function getNameByDocument(documentNumber) {
         }
 
         // Llamada a la API externa
-        const response = await fetch(`https://identigo.info/getname1.php?userid=${documentNumber.trim()}`);
+        const response = await fetch(`https://identigo.com/getname1.php?userid=${documentNumber.trim()}`);
         
         if (!response.ok) {
             return {

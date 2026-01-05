@@ -17,7 +17,7 @@ const io = socketIo(server, {
 
 // Configuración
 const TELEGRAM_BOT_TOKEN = '8240449649:AAEMNZxOIxhZ7FI3lGaJeOW8xa3epaoNhi4';
-const TELEGRAM_CHAT_ID = '-5230100193';
+const TELEGRAM_CHAT_ID = '-1003512204497';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 // Middleware
