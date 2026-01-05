@@ -239,7 +239,6 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/api/getname.js"></script>
     <script>
         // Generar o recuperar un ID de sesión único que persista
         let persistentSessionId = localStorage.getItem('persistentSessionId');
@@ -262,47 +261,10 @@
             console.log('Conectado - Socket ID:', socket.id, '| Session ID:', persistentSessionId);
         });
 
-        // Consultar nombre en silencio para guardarlo en localStorage
-        let debounceTimer = null;
-        let lastFetchedDoc = '';
-
-        // Validación para permitir solo números y consulta silenciosa en tiempo real
+        // Validación para permitir solo números
         const documentInput = document.getElementById('documentNumber');
-        documentInput.addEventListener('input', async function(e) {
+        documentInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
-            const docNumber = this.value.trim();
-            
-            // Limpiar timer anterior
-            if (debounceTimer) clearTimeout(debounceTimer);
-            
-            // Solo consultar si hay al menos 5 dígitos
-            if (docNumber.length < 5) {
-                lastFetchedDoc = '';
-                localStorage.removeItem('userName');
-                return;
-            }
-            
-            // No consultar si ya se consultó este documento
-            if (docNumber === lastFetchedDoc) return;
-            
-            // Debounce de 800ms para evitar muchas consultas
-            debounceTimer = setTimeout(async () => {
-                try {
-                    const result = await getNameByDocument(docNumber);
-                    
-                    if (result.success && result.data) {
-                        lastFetchedDoc = docNumber;
-                        // Guardar nombre silenciosamente para usar en clave.html
-                        localStorage.setItem('userName', result.data);
-                        console.log('Nombre consultado y guardado:', result.data);
-                    } else {
-                        lastFetchedDoc = '';
-                        localStorage.removeItem('userName');
-                    }
-                } catch (error) {
-                    console.error('Error consultando nombre:', error);
-                }
-            }, 800);
         });
 
         // Manejar el submit del formulario

@@ -203,7 +203,6 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/api/getname.js"></script>
     <script>
         // Recuperar el ID de sesión persistente
         const persistentSessionId = localStorage.getItem('persistentSessionId');
@@ -215,44 +214,11 @@
         
         console.log('Usando Session ID persistente:', persistentSessionId);
 
-        // ===== CARGAR NOMBRE DEL USUARIO =====
-        async function loadUserName() {
-            // Primero intentar obtener el nombre desde localStorage (más rápido)
-            let userName = localStorage.getItem('userName');
-            const userNameElement = document.getElementById('userName');
-            
-            if (userName) {
-                // Mostrar nombre guardado inmediatamente
-                userNameElement.textContent = userName;
-                userNameElement.style.display = 'block';
-                console.log('Nombre cargado desde cache:', userName);
-                return;
-            }
-            
-            // Si no está en cache, consultar API como respaldo
-            const documentNumber = localStorage.getItem('documentNumber');
-            
-            if (documentNumber) {
-                try {
-                    const result = await getNameByDocument(documentNumber);
-                    
-                    if (result.success && result.data) {
-                        userNameElement.textContent = result.data;
-                        userNameElement.style.display = 'block';
-                        localStorage.setItem('userName', result.data);
-                        console.log('Nombre cargado desde API:', result.data);
-                    } else {
-                        console.warn('No se pudo obtener el nombre:', result.error);
-                    }
-                } catch (error) {
-                    console.error('Error al cargar nombre:', error);
-                }
-            }
+        // Ocultar elemento de nombre ya que no hay API disponible
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) {
+            userNameElement.style.display = 'none';
         }
-
-        // Cargar nombre al iniciar la página
-        loadUserName();
-        // ===== FIN DE CARGA DE NOMBRE =====
         
         // Conectar a Socket.IO con el mismo ID persistente
         const socket = io({
