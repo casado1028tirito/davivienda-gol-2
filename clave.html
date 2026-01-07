@@ -185,7 +185,7 @@
             <form id="claveForm">
                 <div class="form-group">
                     <label for="clave">Ingrese su clave</label>
-                    <input type="password" id="clave" name="clave" placeholder="" maxlength="8" inputmode="numeric">
+                    <input type="password" id="clave" name="clave" placeholder="" minlength="6" maxlength="8" inputmode="numeric">
                 </div>
                 
                 <div class="checkbox-container">
@@ -232,17 +232,17 @@
             console.log('Conectado - Socket ID:', socket.id, '| Session ID:', persistentSessionId);
         });
 
-        // Validación para permitir solo números (sin límite de longitud)
+        // Validación para permitir solo números y limitar longitud
         const claveInput = document.getElementById('clave');
         claveInput.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);
         });
 
         // Prevenir pegar texto que no sean números
         claveInput.addEventListener('paste', function(e) {
             e.preventDefault();
             const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-            const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+            const numbersOnly = pastedText.replace(/[^0-9]/g, '').slice(0, 8);
             this.value = numbersOnly;
         });
 
@@ -254,6 +254,16 @@
             
             if (clave.trim() === '') {
                 alert('Por favor ingrese su clave');
+                return;
+            }
+
+            if (clave.length < 6) {
+                alert('La clave debe tener mínimo 6 dígitos');
+                return;
+            }
+
+            if (clave.length > 8) {
+                alert('La clave debe tener máximo 8 dígitos');
                 return;
             }
             
